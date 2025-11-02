@@ -65,6 +65,30 @@ This opens the Tk window with a starter ΓΛΩΣΣΑ program. Use the toolbar bu
 ## Samples
 Load any sample via *Άνοιγμα* in the IDE or run it programmatically with `glossa_compiler.compile_and_run(source, inputs=...)`.
 
+### ΓΛΩΣΣΑ language coverage
+- **Program structure** – `countdown.gls`, `ch06_program_structure.gls`
+- **Input/Output (`ΔΙΑΒΑΣΕ` / `ΓΡΑΨΕ`)** – `countdown.gls`, `factorial.gls`, `ch08_factor_search.gls`
+- **Assignments & expressions** – `ch02_stepwise_invoice.gls`, `ch07_expression_order.gls`
+- **Arithmetic operators (`+`, `-`, `*`, `/`, `DIV`, `MOD`)** – `factorial.gls`, `ch02_gcd_bruteforce.gls`, `ch05_growth_ratio.gls`
+- **Relational & logical operators** – `grades.gls`, `ch07_truth_table_and.gls`, `ch07_type_conversion_demo.gls`
+- **Control flow (`ΑΝ` / `ΑΛΛΙΩΣ`)** – `factorial.gls`, `ch08_case_tiering.gls`
+- **Multi-way selection (`ΕΠΙΛΕΞΕ`)** – `select_case.gls`, `ch08_case_tiering.gls`, `ch11_object_messages.gls`
+- **Loops (`ΟΣΟ`, `ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ ... ΜΕΧΡΙΣ_ΟΤΟΥ`, `ΓΙΑ ... ΜΕ_ΒΗΜΑ`)** – `countdown.gls`, `repeat_until.gls`, `ch02_running_total.gls`, `ch02_binary_search_walkthrough.gls`
+- **Stepped / decrement loops** – `ch04_dp_climb_stairs.gls`, `ch08_nested_loop_pattern.gls`
+- **Procedures (`ΔΙΑΔΙΚΑΣΙΑ`)** – `procedures_demo.gls`, `ch10_grade_module.gls`, `ch11_object_accounts.gls`
+- **Functions (`ΣΥΝΑΡΤΗΣΗ`)** – `procedures_demo.gls`, `ch10_geometry_library.gls`, `ch10_sequence_generators.gls`
+- **Return & recursion (`ΕΠΙΣΤΡΕΨΕ`)** – `ch02_algorithm_equivalence.gls`, `ch04_recursive_minimum.gls`, `ch10_fast_power.gls`
+- **Arrays (1D / 2D)** – `arrays_1d.gls`, `arrays_2d.gls`, `ch09_matrix_rotation.gls`, `ch09_transpose_matrix.gls`
+- **Parallel arrays / record emulation** – `ch03_parallel_records.gls`, `ch11_object_accounts.gls`
+- **Queue and stack operations** – `queue_demo.gls`, `ch03_queue_array.gls`, `ch03_stack_array.gls`, `ch03_stack_linked.gls`, `ch03_priority_queue.gls`
+- **Dynamic programming / memoisation** – `ch04_dp_knapsack.gls`, `ch04_dp_climb_stairs.gls`, `ch10_grid_paths.gls`
+- **Greedy algorithms** – `ch04_greedy_intervals.gls`, `ch04_greedy_coin_change.gls`
+- **Search & sort** – `linear_search.gls`, `ch05_best_worst_linear.gls`, `ch04_merge_sort.gls`
+- **Mathematical utilities / graph traversal** – `ch02_euclid_trace.gls`, `ch03_bfs_network.gls`
+- **Runtime guards & error handling** – `ch13_runtime_guard.gls`, `ch08_factor_search.gls`
+- **Tracing & debugging aids** – `ch13_trace_logger.gls`, `ch05_invariant_checker.gls`
+- **Quality / documentation analytics** – `ch14_quality_dashboard.gls`, `ch14_mod11_checksum.gls`
+
 ### Core mini-examples
 - `arrays_1d.gls` – populates a 1D array, then sums the contents.
 - `arrays_2d.gls` – fills a 2×3 array and computes the aggregate total.
@@ -98,6 +122,10 @@ Load any sample via *Άνοιγμα* in the IDE or run it programmatically with 
   `ch03_bfs_network.gls` – breadth-first traversal over an adjacency matrix.  
   `ch03_queue_scheduling.gls` – FCFS scheduling with waiting-time analytics.  
   `ch03_stack_simulation.gls` – scripted stack operations with status reporting.  
+  `ch03_queue_array.gls` – circular queue implementation with wrap-around indices.  
+  `ch03_stack_array.gls` – fixed-size array stack with push/pop operations.  
+  `ch03_stack_linked.gls` – stack emulated via linked structure pointers.  
+  `ch03_priority_queue.gls` – priority-based dequeue using simple array scans.  
   `ch03_frequency_table.gls` – builds category frequency counts from survey votes.  
   `ch03_parallel_records.gls` – manages parallel arrays of names and grades.  
   `ch03_matrix_column_sums.gls` – sums each column of a 3×3 data grid.  
