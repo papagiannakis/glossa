@@ -53,7 +53,7 @@ Toolbar (Άνοιγμα, Αποθήκευση, Εκτέλεση, Βήμα, Συ�
 ```
 
 ### `run_ide.py` (10 lines)
-Launcher entry point – instantiates `GlossaIDE()` and calls `mainloop()`. Used by PyInstaller for bundling.
+Launcher entry point – instantiates `GlossaIDE()` and calls `mainloop()`.
 
 ### `samples/` (50+ `.gls` files)
 Chapter-aligned example programs demonstrating language features. Each file follows the template:
@@ -100,12 +100,7 @@ source = """ΠΡΟΓΡΑΜΜΑ Τεστ
 outputs = compile_and_run(source, inputs=[])  # Returns list of ΓΡΑΨΕ outputs
 ```
 
-### Building executables (PyInstaller)
-**macOS**: `bash Bundles/build_mac.sh` (produces `Bundles/dist/macOS/glossa-ide.app`)
-**Windows x64**: `powershell Bundles\build_windows_x64.ps1`
-**Windows ARM64**: `powershell Bundles\build_windows_arm64.ps1`
 
-**Critical flags**: `--add-data "samples:samples"` bundles sample programs into executable
 
 ### Adding language features
 1. **Lexer**: Add keyword to `KEYWORDS` dict or symbol to `SYMBOLS` dict in `glossa_compiler.py`
@@ -157,11 +152,6 @@ Built-in functions are checked before user-defined functions in `call_function()
 - IDE provides `GUIIO(output_widget)` to redirect `ΓΡΑΨΕ` output to console
 - Debugger: IDE creates `TkDebuggerHook` instance and passes to `exec_statements(debugger=...)`
 
-### PyInstaller bundling
-- `--windowed` flag suppresses console window on Windows/macOS
-- `--onefile` produces single executable with samples embedded
-- Notarization: Optional `Bundles/notarize_mac.sh` for macOS Gatekeeper (requires Apple Developer ID)
-
 ## External Dependencies
 **None** – project uses only Python stdlib. `requirements.txt` is empty except for reminder to ensure Tkinter support.
 
@@ -187,4 +177,3 @@ Built-in functions are checked before user-defined functions in `call_function()
 ## File Naming Patterns
 - Core modules: `glossa_*.py` (e.g., `glossa_compiler.py`, `glossa_ide_tk.py`)
 - Samples: `chXX_*.gls` for chapter-specific, `*.gls` for basics (e.g., `factorial.gls`, `arrays_2d.gls`)
-- Build outputs: `Bundles/dist/{macOS,windows-x64,windows-arm64}/`
