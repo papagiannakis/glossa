@@ -74,7 +74,7 @@ class GlossaIDE(tk.Tk):
         """Build the UI elements and preload a starter template."""
         super().__init__()
         self.title("ΕΠΙΤΕΛΟΥΣ ENA ΓΛΩΣΣΑ IDE (Python-based)")
-        self.geometry("1000x700")
+        self.geometry("1600x2000")
 
         # Fonts
         self.code_font = tkfont.Font(family="Courier", size=12)
@@ -85,17 +85,18 @@ class GlossaIDE(tk.Tk):
 
         tk.Button(toolbar, text="Άνοιγμα", command=self.open_file).pack(side='left')
         tk.Button(toolbar, text="Αποθήκευση", command=self.save_file).pack(side='left')
+        tk.Button(toolbar, text="Αποθήκευση ως", command=self.save_as_file).pack(side='left')
         tk.Button(toolbar, text="Εκτέλεση", command=self.run_code).pack(side='left')
         tk.Button(toolbar, text="Βήμα", command=self.debug_step).pack(side='left')
         tk.Button(toolbar, text="Συνέχεια", command=self.debug_continue).pack(side='left')
         tk.Button(toolbar, text="Διακοπή", command=self.debug_stop).pack(side='left')
 
         # Paned editor/console
-        paned = tk.PanedWindow(self, orient='vertical')
-        paned.pack(fill='both', expand=True)
+        self.paned = tk.PanedWindow(self, orient='vertical')
+        self.paned.pack(fill='both', expand=True)
 
         # Editor
-        editor_frame = tk.Frame(paned)
+        editor_frame = tk.Frame(self.paned)
         self.line_numbers = tk.Text(editor_frame, width=5, state='disabled', background='#f5f5f5', foreground='#555555', relief='flat', font=self.code_font, padx=4, takefocus=0)
         self.line_numbers.pack(side='left', fill='y')
         self.editor = tk.Text(editor_frame, wrap='none', font=self.code_font, undo=True)
@@ -105,10 +106,10 @@ class GlossaIDE(tk.Tk):
         yscroll.configure(command=self.on_scrollbar)
         self.editor.pack(side='left', fill='both', expand=True)
         yscroll.pack(side='right', fill='y')
-        paned.add(editor_frame)
+        self.paned.add(editor_frame)
 
         # Output console and watch panel
-        output_frame = tk.Frame(paned)
+        output_frame = tk.Frame(self.paned)
         output_split = tk.PanedWindow(output_frame, orient='horizontal')
         output_split.pack(fill='both', expand=True)
 
@@ -122,11 +123,18 @@ class GlossaIDE(tk.Tk):
 
         watch_holder = tk.Frame(output_split)
         tk.Label(watch_holder, text="Μεταβλητές").pack(anchor='w')
-        self.watch = tk.Text(watch_holder, width=30, height=10, state='disabled', font=("Courier New", 11))
+        self.watch = tk.Text(watch_holder, width=25, height=10, state='disabled', font=("Courier New", 11))
         self.watch.pack(fill='both', expand=True)
         output_split.add(watch_holder)
 
-        paned.add(output_frame)
+        self.paned.add(output_frame)
+        
+        # Configure minimum sizes and let editor occupy most space
+        self.paned.paneconfigure(editor_frame, minsize=400)
+        self.paned.paneconfigure(output_frame, minsize=250)
+        
+        # Store reference to output_split for later positioning
+        self.output_split = output_split
 
         # Syntax highlight tags
         self.keyword_font = self.code_font.copy()
@@ -136,7 +144,7 @@ class GlossaIDE(tk.Tk):
         self.editor.tag_configure("kw", foreground="#0057b8", font=self.keyword_font)
         self.editor.tag_configure("str", foreground="#2ca02c")
         self.editor.tag_configure("com", foreground="#7f7f7f", font=self.comment_font)
-        self.editor.tag_configure("debug_line", background="#fff3b0")
+        self.editor.tag_configure("debug_line", background="#fff3b0", foreground="#c00000")
         self.editor.tag_configure("error_line", background="#ffd6d6")
 
         self.editor.bind("<KeyRelease>", self.on_key_release)
@@ -167,6 +175,47 @@ class GlossaIDE(tk.Tk):
         self.debug_env = None
         self.debug_prog = None
         self.update_watch(None)
+        self.update_window_title()
+        
+        # Set initial paned position after window fully renders
+        self.after(100, self._set_initial_paned_position)
+        # Set horizontal split between output and variables (75% output, 25% vars)
+        self.after(150, self._set_output_split_position)
+
+    def _set_initial_paned_position(self):
+        """Set sash position to show ~70 lines of code in the editor."""
+        total_height = self.paned.winfo_height()
+        if total_height > 1:
+            # Calculate height for ~70 lines (18 pixels per line @ 12pt font)
+            # But ensure output panel gets at least 250 pixels
+            desired_editor = 70 * 18  # 1260 pixels for 70 lines
+            min_output = 250
+            
+            if total_height >= (desired_editor + min_output):
+                # We have enough space for 70 lines
+                editor_height = desired_editor
+            else:
+                # Allocate what we can, leaving minimum for output
+                editor_height = total_height - min_output
+            
+            self.paned.sash_place(0, 0, editor_height)
+    
+    def _set_output_split_position(self):
+        """Set horizontal split to give Output 75% and Variables 25%."""
+        total_width = self.output_split.winfo_width()
+        if total_width > 1:
+            # Give 75% to output console, 25% to variables
+            output_width = int(total_width * 0.75)
+            self.output_split.sash_place(0, output_width, 0)
+
+    def update_window_title(self):
+        """Update the window title to show the current file name."""
+        base_title = "ΕΠΙΤΕΛΟΥΣ ENA ΓΛΩΣΣΑ IDE"
+        if self.current_file:
+            filename = os.path.basename(self.current_file)
+            self.title(f"{base_title} - {filename}")
+        else:
+            self.title(base_title)
 
     def on_key_release(self, event):
         """Refresh syntax highlighting when edits occur."""
@@ -394,7 +443,11 @@ class GlossaIDE(tk.Tk):
 
     def open_file(self):
         """Open a Glossa file and load it into the editor."""
-        path = filedialog.askopenfilename(filetypes=[("Glossa files","*.gls *.txt *.psc"),("All files","*.*")])
+        samples_dir = os.path.join(BASE_DIR, "samples")
+        initial_dir = samples_dir if os.path.exists(samples_dir) else BASE_DIR
+        path = filedialog.askopenfilename(
+            initialdir=initial_dir,
+            filetypes=[("Glossa files","*.gls *.txt *.psc"),("All files","*.*")])
         if not path: return
         with open(path, "r", encoding="utf-8") as f:
             data = f.read()
@@ -403,6 +456,7 @@ class GlossaIDE(tk.Tk):
         self.highlight_all()
         self.update_line_numbers()
         self.current_file = path
+        self.update_window_title()
 
     def save_file(self):
         """Persist the current buffer to disk, prompting for a filename once."""
@@ -412,7 +466,23 @@ class GlossaIDE(tk.Tk):
             self.current_file = path
         with open(self.current_file, "w", encoding="utf-8") as f:
             f.write(self.editor.get("1.0","end-1c"))
+        self.update_window_title()
         messagebox.showinfo("Αποθήκευση", "Το αρχείο αποθηκεύτηκε.")
+
+    def save_as_file(self):
+        """Save the current buffer to a new file, always prompting for filename."""
+        samples_dir = os.path.join(BASE_DIR, "samples")
+        initial_dir = samples_dir if os.path.exists(samples_dir) else BASE_DIR
+        path = filedialog.asksaveasfilename(
+            initialdir=initial_dir,
+            defaultextension=".gls",
+            filetypes=[("Glossa files","*.gls *.txt *.psc")])
+        if not path: return
+        self.current_file = path
+        with open(self.current_file, "w", encoding="utf-8") as f:
+            f.write(self.editor.get("1.0","end-1c"))
+        self.update_window_title()
+        messagebox.showinfo("Αποθήκευση ως", "Το αρχείο αποθηκεύτηκε.")
 
     def run_code(self):
         """Compile and execute the buffer using the in-process compiler."""

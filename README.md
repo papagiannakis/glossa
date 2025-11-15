@@ -15,7 +15,7 @@
 This repository contains a lightweight implementation of the Greek educational programming language ΓΛΩΣΣΑ together with a Tkinter-based IDE. It is intended as a ready-to-use teaching toolkit for the “Ανάπτυξη Εφαρμογών σε Προγραμματιστικό Περιβάλλον” curriculum.
 
 ### Key features
-- **ΓΛΩΣΣΑ interpreter** (`glossa_compiler.py`): lexer, parser, and interpreter that support the full high-school subset—assignments, αριθμητικές/λογικές εκφράσεις, συνθήκες, `ΟΣΟ`, `ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ`, `ΓΙΑ ... ΜΕ_ΒΗΜΑ`, `ΕΠΙΛΕΞΕ`, πολυδιάστατους πίνακες, διαδικασίες, συναρτήσεις, αναδρομή, και χειρισμό σφαλμάτων (π.χ. διαίρεση με το μηδέν).
+- **ΓΛΩΣΣΑ interpreter** (`glossa_compiler.py`): lexer, parser, and interpreter that support the full high-school subset—assignments, αριθμητικές/λογικές εκφράσεις, συνθήκες, `ΟΣΟ`, `ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ`, `ΓΙΑ ... ΜΕ_ΒΗΜΑ`, `ΕΠΙΛΕΞΕ`, πολυδιάστατους πίνακες, διαδικασίες, συναρτήσεις, αναδρομή, ενσωματωμένες μαθηματικές συναρτήσεις (Α_Μ, Α_Τ, Ε, ΕΦ, ΗΜ, ΛΟΓ, ΣΥΝ, Τ_Ρ), και χειρισμό σφαλμάτων (π.χ. διαίρεση με το μηδέν).
 - **Desktop IDE** (`glossa_ide_tk.py`): Tkinter-based editor with syntax highlighting, drag–resize panes, Ελληνικό UI, γραμμή εργαλείων, debugging (βήμα–βήμα, συνέχεια, διακοπή), watches [τοπικές/καθολικές], φωτισμό τρέχουσας γραμμής και εμφάνιση σφαλμάτων.
 - **Extensive sample suite** (`samples/`): 50+ έτοιμα παραδείγματα με σχόλια “Περιγραφή / Βήμα-βήμα” που καλύπτουν από βασικούς αλγορίθμους έως προχωρημένες τεχνικές (δυναμικός προγραμματισμός, BFS, αναδρομή με απομνημόνευση, αξιολόγηση ποιότητας λογισμικού).
 - **Tk-first workflow**: καμία εξάρτηση από τρίτες βιβλιοθήκες· αρκεί η standard βιβλιοθήκη της Python.
@@ -77,6 +77,7 @@ Load any sample via *Άνοιγμα* in the IDE or run it programmatically with 
 - **Stepped / decrement loops** – `ch04_dp_climb_stairs.gls`, `ch08_nested_loop_pattern.gls`
 - **Procedures (`ΔΙΑΔΙΚΑΣΙΑ`)** – `procedures_demo.gls`, `ch10_grade_module.gls`, `ch11_object_accounts.gls`
 - **Functions (`ΣΥΝΑΡΤΗΣΗ`)** – `procedures_demo.gls`, `ch10_geometry_library.gls`, `ch10_sequence_generators.gls`
+- **Built-in mathematical functions** – `builtin_functions.gls` (Α_Μ, Α_Τ, Ε, ΕΦ, ΗΜ, ΛΟΓ, ΣΥΝ, Τ_Ρ)
 - **Return & recursion (`ΕΠΙΣΤΡΕΨΕ`)** – `ch02_algorithm_equivalence.gls`, `ch04_recursive_minimum.gls`, `ch10_fast_power.gls`
 - **Arrays (1D / 2D)** – `arrays_1d.gls`, `arrays_2d.gls`, `ch09_matrix_rotation.gls`, `ch09_transpose_matrix.gls`
 - **Parallel arrays / record emulation** – `ch03_parallel_records.gls`, `ch11_object_accounts.gls`

@@ -9,6 +9,7 @@ is intentionally single-pass and keeps the data structures simple so new
 students can follow the implementation.
 """
 import re
+import math
 from dataclasses import dataclass
 from typing import List, Any, Optional, Tuple, Dict, Union
 
@@ -993,6 +994,11 @@ def call_procedure(name: str, args: List[ASTNode], env: Env, io: IOHandler, debu
 
 
 def call_function(name: str, args: List[ASTNode], env: Env, io: IOHandler, debugger=None):
+    # Check for built-in functions first
+    builtin_result = call_builtin_function(name, args, env, io, debugger)
+    if builtin_result is not None:
+        return builtin_result
+    
     func = env.functions.get(name)
     if func is None:
         raise RuntimeErrorGlossa(f"Άγνωστη συνάρτηση '{name}'")
@@ -1010,6 +1016,87 @@ def call_function(name: str, args: List[ASTNode], env: Env, io: IOHandler, debug
     except FunctionReturn as ret:
         return child_env._coerce(func.return_type, ret.value)
     raise RuntimeErrorGlossa(f"Η συνάρτηση '{name}' δεν επέστρεψε τιμή")
+
+def call_builtin_function(name: str, args: List[ASTNode], env: Env, io: IOHandler, debugger=None):
+    """Handle built-in functions (ενσωματωμένες συναρτήσεις).
+    
+    Returns the function result if it's a built-in function, None otherwise.
+    Built-in functions:
+    - Α_Μ(x): Integer part (truncates towards zero)
+    - Α_Τ(x): Absolute value
+    - Ε(x): Exponential (e^x)
+    - ΕΦ(x): Tangent (input in degrees)
+    - ΗΜ(x): Sine (input in degrees)
+    - ΛΟΓ(x): Natural logarithm
+    - ΣΥΝ(x): Cosine (input in degrees)
+    - Τ_Ρ(x): Square root
+    """
+    builtin_funcs = ["Α_Μ", "Α_Τ", "Ε", "ΕΦ", "ΗΜ", "ΛΟΓ", "ΣΥΝ", "Τ_Ρ"]
+    
+    if name not in builtin_funcs:
+        return None
+    
+    # All built-in functions take exactly one argument
+    if len(args) != 1:
+        raise RuntimeErrorGlossa(f"Η ενσωματωμένη συνάρτηση '{name}' αναμένει ακριβώς 1 όρισμα")
+    
+    # Evaluate the argument
+    arg_value = eval_expr(args[0], env, io, debugger)
+    
+    # Ensure numeric input
+    if not isinstance(arg_value, (int, float)):
+        if isinstance(arg_value, bool):
+            arg_value = float(arg_value)
+        else:
+            raise RuntimeErrorGlossa(f"Η συνάρτηση '{name}' απαιτεί αριθμητικό όρισμα")
+    
+    try:
+        if name == "Α_Μ":
+            # Integer part - truncates towards zero (like int() in Python)
+            return int(arg_value)
+        
+        elif name == "Α_Τ":
+            # Absolute value - preserves type (int->int, float->float)
+            result = abs(arg_value)
+            return int(result) if isinstance(arg_value, int) else result
+        
+        elif name == "Ε":
+            # Exponential (e^x)
+            return math.exp(float(arg_value))
+        
+        elif name == "ΕΦ":
+            # Tangent (input in degrees)
+            radians = math.radians(float(arg_value))
+            return math.tan(radians)
+        
+        elif name == "ΗΜ":
+            # Sine (input in degrees)
+            radians = math.radians(float(arg_value))
+            return math.sin(radians)
+        
+        elif name == "ΛΟΓ":
+            # Natural logarithm
+            float_val = float(arg_value)
+            if float_val <= 0:
+                raise RuntimeErrorGlossa(f"Η συνάρτηση ΛΟΓ δεν δέχεται μη θετικούς αριθμούς")
+            return math.log(float_val)
+        
+        elif name == "ΣΥΝ":
+            # Cosine (input in degrees)
+            radians = math.radians(float(arg_value))
+            return math.cos(radians)
+        
+        elif name == "Τ_Ρ":
+            # Square root
+            float_val = float(arg_value)
+            if float_val < 0:
+                raise RuntimeErrorGlossa(f"Η συνάρτηση Τ_Ρ δεν δέχεται αρνητικούς αριθμούς")
+            return math.sqrt(float_val)
+    
+    except ValueError as e:
+        raise RuntimeErrorGlossa(f"Σφάλμα στην εκτέλεση της συνάρτησης '{name}': {str(e)}")
+    except OverflowError:
+        raise RuntimeErrorGlossa(f"Υπερχείλιση στην εκτέλεση της συνάρτησης '{name}'")
 
 def exec_statements(stmts: List[ASTNode], env: Env, io: IOHandler, debugger=None):
     """Execute a list of statements sequentially.
