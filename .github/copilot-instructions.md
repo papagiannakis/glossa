@@ -13,6 +13,7 @@ Educational Greek programming language (ΓΛΩΣΣΑ) compiler and Tkinter-based
 - **Parser** (`Parser` class): Recursive-descent parser producing dataclass AST nodes (`Program`, `Assign`, `If`, `While`, `For`, `Select`, `ProcedureDef`, `FunctionDef`, etc.)
 - **Interpreter** (`exec_statement()`, `eval_expr()`): Direct AST walker with no optimization. Environment (`Env` class) manages variable scoping with parent-chain lookup for nested procedure/function contexts
 - **Type system**: Variables declared with Greek types (`ΑΚΕΡΑΙΕΣ`, `ΠΡΑΓΜΑΤΙΚΕΣ`, `ΧΑΡΑΚΤΗΡΕΣ`, `ΛΟΓΙΚΕΣ`) and coerced at assignment/expression evaluation
+- **Constants**: Declared with `ΣΤΑΘΕΡΕΣ` section before `ΜΕΤΑΒΛΗΤΕΣ`, immutable after initialization, stored in `Env.constants` dict
 - **Arrays**: 1D/2D only, 1-indexed (`Δεδομένα[1]` to `Δεδομένα[n]`), bounds-checked at runtime via `_resolve_indices()`
 - **Built-in functions** (`call_builtin_function()`): Eight mathematical functions implemented using Python's `math` module:
   - `Α_Μ(x)`: Integer part (truncates towards zero)
@@ -24,6 +25,7 @@ Educational Greek programming language (ΓΛΩΣΣΑ) compiler and Tkinter-based
 - **I/O abstraction**: `IOHandler` base class with `write()`/`read()` methods – overridden by `GUIIO` in IDE for console redirection
 
 **Critical implementation details:**
+- Constants declared: `ΣΤΑΘΕΡΕΣ TYPE: name = value` (immutable, checked at assignment time)
 - Variables default-initialized: `TYPE_INT→0`, `TYPE_REAL→0.0`, `TYPE_CHAR→""`, `TYPE_BOOL→False`
 - Loop semantics: `ΓΙΑ i ΑΠΟ start ΜΕΧΡΙ end ΜΕ_ΒΗΜΑ step` allows negative steps for countdown
 - Function returns: Internal `FunctionReturn` exception propagates values up the call stack

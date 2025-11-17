@@ -187,6 +187,7 @@ class ASTNode:
 class Program(ASTNode):
     """Program header plus declarations and body statements."""
     name: str
+    const_decls: Dict[str, Tuple[str, Any]]  # name -> (type, value)
     var_decls: Dict[str, VarInfo]  # name -> (type, dimensions)
     statements: List[ASTNode]
     procedures: Dict[str, "ProcedureDef"]
@@ -362,6 +363,7 @@ class Parser:
         _, _, line = t
         name_tok = self.expect("ID")
         name = name_tok[1]
+        const_decls = self.parse_constants_section()
         var_decls = self.parse_variable_sections()
         self.expect("BEGIN")
         stmts: List[ASTNode] = []
@@ -399,7 +401,7 @@ class Parser:
                 continue
             raise ParseError("Απροσδόκητο περιεχόμενο μετά το ΤΕΛΟΣ_ΠΡΟΓΡΑΜΜΑΤΟΣ")
         self.expect("EOF")
-        return Program(line=line, name=name, var_decls=var_decls, statements=stmts, procedures=procedures, functions=functions)
+        return Program(line=line, name=name, const_decls=const_decls, var_decls=var_decls, statements=stmts, procedures=procedures, functions=functions)
 
     def parse_statements(self, until: Tuple[str, ...]) -> List[ASTNode]:
         """Collect statements until one of the tokens listed in *until* is met."""
@@ -446,6 +448,42 @@ class Parser:
             self.expect("RBRACKET")
             return ArrayRef(line=line, name=name, indices=indices)
         return Var(line=line, name=name)
+
+    def parse_constants_section(self) -> Dict[str, Tuple[str, Any]]:
+        """Parse ΣΤΑΘΕΡΕΣ section if present."""
+        const_decls: Dict[str, Tuple[str, Any]] = {}
+        if not self.accept("CONSTS"):
+            return const_decls
+        type_tokens = ("TYPE_INT","TYPE_REAL","TYPE_CHAR","TYPE_BOOL")
+        while self.current()[0] in type_tokens:
+            type_tok = self.expect(*type_tokens)
+            self.expect("COLON")
+            while True:
+                id_tok = self.expect("ID")
+                if id_tok[1] in const_decls:
+                    raise ParseError(f"Η σταθερά '{id_tok[1]}' έχει ήδη δηλωθεί")
+                self.expect("EQ")
+                # Parse the constant value
+                val_tok = self.current()
+                if val_tok[0] == "NUMBER":
+                    self.pos += 1
+                    value = val_tok[1]
+                elif val_tok[0] == "STRING":
+                    self.pos += 1
+                    value = val_tok[1]
+                elif val_tok[0] in ("TRUE", "FALSE"):
+                    self.pos += 1
+                    value = val_tok[1]
+                elif val_tok[0] == "MINUS":
+                    self.pos += 1
+                    num_tok = self.expect("NUMBER")
+                    value = -num_tok[1]
+                else:
+                    raise ParseError(f"Αναμενόμενη σταθερή τιμή στη γραμμή {val_tok[2]}")
+                const_decls[id_tok[1]] = (type_tok[0], value)
+                if not self.accept("COMMA"):
+                    break
+        return const_decls
 
     def parse_variable_sections(self) -> Dict[str, VarInfo]:
         decls: Dict[str, VarInfo] = {}
@@ -748,13 +786,19 @@ class Env:
 
     def __init__(self, var_types: Dict[str, VarInfo], parent: Optional["Env"] = None,
                  procedures: Optional[Dict[str, ProcedureDef]] = None,
-                 functions: Optional[Dict[str, FunctionDef]] = None):
+                 functions: Optional[Dict[str, FunctionDef]] = None,
+                 const_decls: Optional[Dict[str, Tuple[str, Any]]] = None):
         """Initialise storage with default values for declared variables."""
         self.parent = parent
         self.types = dict(var_types)
         self.values: Dict[str, Any] = {}
+        self.constants: Dict[str, Tuple[str, Any]] = const_decls if const_decls is not None else {}
         self.procedures = procedures if procedures is not None else (parent.procedures if parent else {})
         self.functions = functions if functions is not None else (parent.functions if parent else {})
+        # Initialize constants with their values
+        for name, (const_type, const_value) in self.constants.items():
+            self.values[name] = self._coerce(const_type, const_value)
+        # Initialize variables with default values
         for name, (base, dims) in self.types.items():
             if dims is None:
                 self.values[name] = self._default_value(base)
@@ -811,7 +855,7 @@ class Env:
         raise RuntimeErrorGlossa(f"Άγνωστος τύπος {tp}")
 
     def _find_owner(self, name: str) -> Optional["Env"]:
-        if name in self.types:
+        if name in self.types or name in self.constants:
             return self
         if self.parent:
             return self.parent._find_owner(name)
@@ -821,6 +865,10 @@ class Env:
         owner = self._find_owner(name)
         if owner is None:
             raise RuntimeErrorGlossa(f"Άγνωστη μεταβλητή '{name}'")
+        # Check if it's a constant first
+        if name in owner.constants:
+            const_type, _ = owner.constants[name]
+            return (const_type, None)
         return owner.types[name]
 
     def _resolve_indices(self, name: str, indices: List[int]) -> Tuple["Env", Any, List[int], str]:
@@ -847,6 +895,9 @@ class Env:
         owner = self._find_owner(name)
         if owner is None:
             raise RuntimeErrorGlossa(f"Άγνωστη μεταβλητή '{name}'")
+        # Check if trying to modify a constant
+        if name in owner.constants:
+            raise RuntimeErrorGlossa(f"Δεν μπορείς να τροποποιήσεις τη σταθερά '{name}'")
         base_type, dims = owner.types[name]
         if indices is None:
             if dims is not None:
@@ -866,6 +917,12 @@ class Env:
         owner = self._find_owner(name)
         if owner is None:
             raise RuntimeErrorGlossa(f"Άγνωστη μεταβλητή '{name}'")
+        # Check if it's a constant
+        if name in owner.constants:
+            if indices is not None:
+                raise RuntimeErrorGlossa(f"Η σταθερά '{name}' δεν είναι πίνακας")
+            return owner.values[name]
+        # It's a variable
         base_type, dims = owner.types[name]
         if indices is None:
             if dims is not None:
@@ -1192,7 +1249,7 @@ def compile_and_run(source: str, inputs: Optional[List[str]] = None) -> List[str
     tokens = lex(source)
     parser = Parser(tokens)
     prog = parser.parse()
-    env = Env(prog.var_decls, procedures=prog.procedures, functions=prog.functions)
+    env = Env(prog.var_decls, procedures=prog.procedures, functions=prog.functions, const_decls=prog.const_decls)
     io = IOHandler(inputs)
     try:
         exec_statements(prog.statements, env, io)

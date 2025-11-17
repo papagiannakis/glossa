@@ -379,7 +379,7 @@ class GlossaIDE(tk.Tk):
             tokens = glossa.lex(src)
             parser = glossa.Parser(tokens)
             prog = parser.parse()
-            env = glossa.Env(prog.var_decls, procedures=prog.procedures, functions=prog.functions)
+            env = glossa.Env(prog.var_decls, procedures=prog.procedures, functions=prog.functions, const_decls=prog.const_decls)
         except glossa.LexerError as e:
             self.append_out(f"Σφάλμα αναλυτή (Lexer): {e}")
             self.highlight_error_from_message(e)
@@ -497,7 +497,7 @@ class GlossaIDE(tk.Tk):
             tokens = glossa.lex(src)
             parser = glossa.Parser(tokens)
             prog = parser.parse()
-            env = glossa.Env(prog.var_decls, procedures=prog.procedures, functions=prog.functions)
+            env = glossa.Env(prog.var_decls, procedures=prog.procedures, functions=prog.functions, const_decls=prog.const_decls)
             io = GUIIO(self.output)
             try:
                 glossa.exec_statements(prog.statements, env, io)

@@ -15,7 +15,7 @@
 This repository contains a lightweight implementation of the Greek educational programming language ΓΛΩΣΣΑ together with a Tkinter-based IDE. It is intended as a ready-to-use teaching toolkit for the “Ανάπτυξη Εφαρμογών σε Προγραμματιστικό Περιβάλλον” curriculum.
 
 ### Key features
-- **ΓΛΩΣΣΑ interpreter** (`glossa_compiler.py`): lexer, parser, and interpreter that support the full high-school subset—assignments, αριθμητικές/λογικές εκφράσεις, συνθήκες, `ΟΣΟ`, `ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ`, `ΓΙΑ ... ΜΕ_ΒΗΜΑ`, `ΕΠΙΛΕΞΕ`, πολυδιάστατους πίνακες, διαδικασίες, συναρτήσεις, αναδρομή, ενσωματωμένες μαθηματικές συναρτήσεις (Α_Μ, Α_Τ, Ε, ΕΦ, ΗΜ, ΛΟΓ, ΣΥΝ, Τ_Ρ), και χειρισμό σφαλμάτων (π.χ. διαίρεση με το μηδέν).
+- **ΓΛΩΣΣΑ interpreter** (`glossa_compiler.py`): lexer, parser, and interpreter that support the full high-school subset—assignments, σταθερές (ΣΤΑΘΕΡΕΣ), αριθμητικές/λογικές εκφράσεις, συνθήκες, `ΟΣΟ`, `ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ`, `ΓΙΑ ... ΜΕ_ΒΗΜΑ`, `ΕΠΙΛΕΞΕ`, πολυδιάστατους πίνακες, διαδικασίες, συναρτήσεις, αναδρομή, ενσωματωμένες μαθηματικές συναρτήσεις (Α_Μ, Α_Τ, Ε, ΕΦ, ΗΜ, ΛΟΓ, ΣΥΝ, Τ_Ρ), και χειρισμό σφαλμάτων (π.χ. διαίρεση με το μηδέν).
 - **Desktop IDE** (`glossa_ide_tk.py`): Tkinter-based editor with syntax highlighting, drag–resize panes, Ελληνικό UI, γραμμή εργαλείων, debugging (βήμα–βήμα, συνέχεια, διακοπή), watches [τοπικές/καθολικές], φωτισμό τρέχουσας γραμμής και εμφάνιση σφαλμάτων.
 - **Extensive sample suite** (`samples/`): 50+ έτοιμα παραδείγματα με σχόλια “Περιγραφή / Βήμα-βήμα” που καλύπτουν από βασικούς αλγορίθμους έως προχωρημένες τεχνικές (δυναμικός προγραμματισμός, BFS, αναδρομή με απομνημόνευση, αξιολόγηση ποιότητας λογισμικού).
 - **Tk-first workflow**: καμία εξάρτηση από τρίτες βιβλιοθήκες· αρκεί η standard βιβλιοθήκη της Python.
@@ -67,6 +67,7 @@ Load any sample via *Άνοιγμα* in the IDE or run it programmatically with 
 
 ### ΓΛΩΣΣΑ language coverage
 - **Program structure** – `countdown.gls`, `ch06_program_structure.gls`
+- **Constants (`ΣΤΑΘΕΡΕΣ`)** – `constants_demo.gls`, `constants_types.gls`, `ch07_constant_usage.gls`
 - **Input/Output (`ΔΙΑΒΑΣΕ` / `ΓΡΑΨΕ`)** – `countdown.gls`, `factorial.gls`, `ch08_factor_search.gls`
 - **Assignments & expressions** – `ch02_stepwise_invoice.gls`, `ch07_expression_order.gls`
 - **Arithmetic operators (`+`, `-`, `*`, `/`, `DIV`, `MOD`)** – `factorial.gls`, `ch02_gcd_bruteforce.gls`, `ch05_growth_ratio.gls`
@@ -93,6 +94,8 @@ Load any sample via *Άνοιγμα* in the IDE or run it programmatically with 
 ### Core mini-examples
 - `arrays_1d.gls` – populates a 1D array, then sums the contents.
 - `arrays_2d.gls` – fills a 2×3 array and computes the aggregate total.
+- `constants_demo.gls` – demonstrates constant declaration (ΣΤΑΘΕΡΕΣ) and usage for circle calculations.
+- `constants_types.gls` – shows constants of all types (integers, reals, characters, booleans).
 - `countdown.gls` – performs an interactive countdown using `ΟΣΟ`.
 - `factorial.gls` – multiplies `2..ν` to obtain `n!` with input validation.
 - `fibonacci.gls` – prints the first _k_ Fibonacci numbers iteratively.
