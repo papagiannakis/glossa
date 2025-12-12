@@ -75,6 +75,7 @@ class GlossaIDE(tk.Tk):
         super().__init__()
         self.title("ΕΠΙΤΕΛΟΥΣ ENA ΓΛΩΣΣΑ IDE (Python-based)")
         self.geometry("1600x2000")
+        self.setup_menu()
 
         # Fonts
         self.code_font = tkfont.Font(family="Courier", size=12)
@@ -216,6 +217,38 @@ class GlossaIDE(tk.Tk):
             self.title(f"{base_title} - {filename}")
         else:
             self.title(base_title)
+
+    def setup_menu(self):
+        """Create standard File and Edit menus."""
+        menubar = tk.Menu(self)
+        
+        # File Menu
+        file_menu = tk.Menu(menubar, tearoff=0)
+        file_menu.add_command(label="Άνοιγμα", command=self.open_file, accelerator="Cmd+O")
+        file_menu.add_command(label="Αποθήκευση", command=self.save_file, accelerator="Cmd+S")
+        file_menu.add_command(label="Αποθήκευση ως", command=self.save_as_file, accelerator="Cmd+Shift+S")
+        file_menu.add_separator()
+        file_menu.add_command(label="Έξοδος", command=self.quit)
+        menubar.add_cascade(label="Αρχείο", menu=file_menu)
+
+        # Edit Menu
+        edit_menu = tk.Menu(menubar, tearoff=0)
+        # Using event_generate triggers the built-in widget clipboard handling
+        edit_menu.add_command(label="Αποκοπή", command=lambda: self.focus_get().event_generate("<<Cut>>"), accelerator="Cmd+X")
+        edit_menu.add_command(label="Αντιγραφή", command=lambda: self.focus_get().event_generate("<<Copy>>"), accelerator="Cmd+C")
+        edit_menu.add_command(label="Επικόλληση", command=lambda: self.focus_get().event_generate("<<Paste>>"), accelerator="Cmd+V")
+        edit_menu.add_separator()
+        edit_menu.add_command(label="Επιλογή όλων", command=self.select_all, accelerator="Cmd+A")
+        menubar.add_cascade(label="Επεξεργασία", menu=edit_menu)
+
+        self.config(menu=menubar)
+
+    def select_all(self, event=None):
+        """Select all text in the focused Text widget."""
+        widget = self.focus_get()
+        if isinstance(widget, tk.Text):
+            widget.tag_add("sel", "1.0", "end")
+            return "break"
 
     def on_key_release(self, event):
         """Refresh syntax highlighting when edits occur."""
